@@ -8,7 +8,7 @@ rl.question("Que accion desea realizar? ",function(respuesta){
             rl.close();      
         break;
         case "insertar":
-            preguntar_datos();
+            preguntar_datos_insertar();
         break;
         case "renombrar":
             preguntar_datos_renombrar();
@@ -58,44 +58,26 @@ function consultar(){
     connection.end();
 }
 
-function preguntar_datos(){
-    var datos={};
+function preguntar_datos_insertar(){
     rl.question("Ingrese nombre de la tarea: ", function(respuesta){
-        datos.nombre = respuesta;
-        rl.question("Ingrese estado de la tarea: ",function(respuesta){
-            datos.estado = respuesta;
-            rl.question("Ingrese fecha de creacion de la tarea: ",function(respuesta){
-                datos.creacion = respuesta;
-                if(datos.estado === "terminado"){
-                    rl.question("Ingrese fecha de finalizacion de la tarea: ",function(respuesta){
-                        datos.finalizacion = respuesta;
-                        insertar(datos);
-                        rl.close();
-                    });
-                }
-                else{
-                    datos.finalizacion = "";
-                    insertar(datos);
-                    rl.close();
-                }
-            });
-        });
+        insertar(respuesta);
+        rl.close();
     });
 }
 
-function insertar(datos){
+function insertar(nombre_tarea){
     connection.connect();
-    connection.query(`INSERT INTO to_do.tareas (nombre,estado,creacion,finalizacion) VALUES ('${datos.nombre}','${datos.estado}','${datos.creacion}','${datos.finalizacion}')`,function(error,respuesta){
+    connection.query(`INSERT INTO to_do.tareas (nombre,estado,creacion) VALUES ('${nombre_tarea}','pendiente',now())`,function(error,respuesta){
         if (error) throw error;
     });
     connection.end();
-    console.log("Datos ingreados ok");
+    console.log("Datos ingresados ok");
 }
 
 function preguntar_datos_renombrar(){
     var datos_renombrar={};
-    rl.question("Digite Id de la tarea: ", function(respuesta){
-        datos_renombrar.id = respuesta;
+    rl.question("Digite nombre de la tarea: ", function(respuesta){
+        datos_renombrar.nombre_actual = respuesta;
         rl.question("Ingrese nuevo nombre de la tarea: ",function(respuesta){
             datos_renombrar.nuevo_nombre =  respuesta;
             renombrar(datos_renombrar);
@@ -106,7 +88,7 @@ function preguntar_datos_renombrar(){
 
 function renombrar(datos_renombrar){
     connection.connect();
-    connection.query(`UPDATE to_do.tareas SET nombre = '${datos_renombrar.nuevo_nombre}' WHERE idtareas = '${datos_renombrar.id}'`,function(error,resultado){
+    connection.query(`UPDATE to_do.tareas SET nombre = '${datos_renombrar.nuevo_nombre}' WHERE nombre = '${datos_renombrar.nombre_actual}'`,function(error,resultado){
         if(error) throw error;
     });
     connection.end();
@@ -115,8 +97,7 @@ function renombrar(datos_renombrar){
 
 function preguntar_datos_completar(){
     rl.question("Digite nombre de tarea: ",function(resultado){
-        var nombre_tarea = resultado;
-        completar(nombre_tarea);
+        completar(resultado);
         rl.close();
     });
 }
@@ -126,11 +107,11 @@ function completar(nombre_tarea){
     connection.query(`SELECT tareas.estado FROM to_do.tareas where nombre = '${nombre_tarea}'`,function(error, resultado){
         if (error) throw error;
         if (resultado[0].estado === "terminado"){
-            console.log("La tarea ya estaba terminada");
             connection.end();
+            console.log("La tarea ya estaba terminada");
         }
         else{
-            connection.query(`UPDATE to_do.tareas SET estado = 'terminado' WHERE nombre = '${nombre_tarea}'`, function(error2,respuesta){
+            connection.query(`UPDATE to_do.tareas SET estado = 'terminado', finalizacion = now() WHERE nombre = '${nombre_tarea}'`, function(error2,respuesta){
                if (error2) throw error2;
                 connection.end();
                 console.log("Tarea terminada ok");
