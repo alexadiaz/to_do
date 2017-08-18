@@ -10,6 +10,9 @@ rl.question("Que accion desea realizar? ",function(respuesta){
         case "insertar":
             preguntar_datos();
         break;
+        case "renombrar":
+            preguntar_datos_cambiar();
+        break;
         default:
             console.log("Dato no valido");
             rl.close();
@@ -81,6 +84,26 @@ function insertar(datos){
     connection.connect();
     connection.query(`INSERT INTO to_do.tareas (nombre,estado,creacion,finalizacion) VALUES ('${datos.nombre}','${datos.estado}','${datos.creacion}','${datos.finalizacion}')`,function(error,respuesta){
         if (error) throw error;
+    });
+    connection.end();
+}
+
+function preguntar_datos_cambiar(){
+    var datos_cambiar={};
+    rl.question("Digite Id de la tarea: ", function(respuesta){
+        datos_cambiar.id = respuesta;
+        rl.question("Ingrese nuevo nombre de la tarea: ",function(respuesta){
+            datos_cambiar.nuevo_nombre =  respuesta;
+            renombrar(datos_cambiar);
+            rl.close();
+        });
+    });
+}
+
+function renombrar(datos_cambiar){
+    connection.connect();
+    connection.query(`UPDATE to_do.tareas SET nombre = '${datos_cambiar.nuevo_nombre}' WHERE idtareas = '${datos_cambiar.id}'`,function(error,resultado){
+        if(error) throw error;
     });
     connection.end();
 }
