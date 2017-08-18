@@ -40,7 +40,14 @@ function consultar(){
     connection.connect();
     connection.query("SELECT * FROM to_do.tareas",function(error,respuesta){
         if (error) throw error;
-        console.log(respuesta);
+        for (var i in respuesta){
+            console.log("id: " + respuesta[i].idtareas);
+            console.log("Nombre: " + respuesta[i].nombre);
+            console.log("Estado: " + respuesta[i].estado);
+            console.log("Fecha de creacion: " + respuesta[i].creacion);
+            console.log("Fecha de finalizacion: " + respuesta[i].finalizacion);
+            console.log("");
+        }
     });
     connection.end();
 }
