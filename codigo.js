@@ -89,6 +89,7 @@ function insertar(datos){
         if (error) throw error;
     });
     connection.end();
+    console.log("Datos ingreados ok");
 }
 
 function preguntar_datos_renombrar(){
@@ -109,6 +110,7 @@ function renombrar(datos_renombrar){
         if(error) throw error;
     });
     connection.end();
+    console.log("Datos renombrados ok");
 }
 
 function preguntar_datos_completar(){
@@ -124,13 +126,14 @@ function completar(nombre_tarea){
     connection.query(`SELECT tareas.estado FROM to_do.tareas where nombre = '${nombre_tarea}'`,function(error, resultado){
         if (error) throw error;
         if (resultado[0].estado === "terminado"){
-            console.log("La tarea ya esta terminada");
+            console.log("La tarea ya estaba terminada");
             connection.end();
         }
         else{
             connection.query(`UPDATE to_do.tareas SET estado = 'terminado' WHERE nombre = '${nombre_tarea}'`, function(error2,respuesta){
                if (error2) throw error2;
                 connection.end();
+                console.log("Tarea terminada ok");
             });
         }
     });
