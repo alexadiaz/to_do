@@ -4,7 +4,7 @@ var rl = leer_datos_pantalla();
 rl.question("Que accion desea realizar? ",function(respuesta){
     switch(respuesta) {
         case "consultar":
-            consultar();  
+            consultar(); 
             rl.close();      
         break;
         case "insertar":
@@ -78,5 +78,9 @@ function preguntar_datos(){
 }
 
 function insertar(datos){
-    console.log(datos);
+    connection.connect();
+    connection.query(`INSERT INTO to_do.tareas (nombre,estado,creacion,finalizacion) VALUES ('${datos.nombre}','${datos.estado}','${datos.creacion}','${datos.finalizacion}')`,function(error,respuesta){
+        if (error) throw error;
+    });
+    connection.end();
 }
