@@ -13,7 +13,10 @@ rl.question("Que accion desea realizar? ",function(respuesta){
         case "renombrar":
             preguntar_datos_renombrar();
         break;
-         default:
+        case "completar":
+            preguntar_datos_completar();
+        break;
+        default:
             console.log("Dato no valido");
             rl.close();
     }
@@ -106,4 +109,29 @@ function renombrar(datos_renombrar){
         if(error) throw error;
     });
     connection.end();
+}
+
+function preguntar_datos_completar(){
+    rl.question("Digite nombre de tarea: ",function(resultado){
+        var nombre_tarea = resultado;
+        completar(nombre_tarea);
+        rl.close();
+    });
+}
+
+function completar(nombre_tarea){
+    connection.connect();
+    connection.query(`SELECT tareas.estado FROM to_do.tareas where nombre = '${nombre_tarea}'`,function(error, resultado){
+        if (error) throw error;
+        if (resultado[0].estado === "terminado"){
+            console.log("La tarea ya esta terminada");
+            connection.end();
+        }
+        else{
+            connection.query(`UPDATE to_do.tareas SET estado = 'terminado' WHERE nombre = '${nombre_tarea}'`, function(error2,respuesta){
+               if (error2) throw error2;
+                connection.end();
+            });
+        }
+    });
 }
