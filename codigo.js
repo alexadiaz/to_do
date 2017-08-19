@@ -23,6 +23,7 @@ rl.question("Que accion desea realizar? ",function(respuesta){
         break;
         default:
             console.log("Dato no valido");
+            connection.end();
             rl.close();
     }
 });
@@ -63,14 +64,14 @@ function consultar(connection,cb){
 function preguntar_datos_insertar(connection){
     var existe_tarea = false;
     rl.question("Ingrese nombre de la tarea: ", function(respuesta){
-        verificar_nombre(respuesta, existe_tarea,connection,function(){
+        verificar_nombre("insertar",respuesta, existe_tarea,connection,function(){
             connection.end();
             rl.close();
         });
     });
 }
 
-function verificar_nombre(nombre_tarea, existe_tarea,connection,cb){
+function verificar_nombre(accion,nombre_tarea, existe_tarea,connection,cb){
     connection.query("SELECT * FROM to_do.tareas",function(error, respuesta){
         for(i in respuesta){
             if (respuesta[i].nombre === nombre_tarea){
@@ -79,8 +80,11 @@ function verificar_nombre(nombre_tarea, existe_tarea,connection,cb){
             }
         }
         if (existe_tarea === false){
-            console.log(nombre_tarea);
-            insertar(nombre_tarea,connection,cb);
+            switch (accion){
+                case "insertar":
+                    insertar(nombre_tarea,connection,cb);
+                break;
+            }
         }
         else{
              console.log("La tarea ya existe");
