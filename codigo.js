@@ -63,26 +63,57 @@ function consultar(connection,cb){
 
 function preguntar_datos_insertar(connection){
     var existe_tarea = false;
+    var datos={};
     rl.question("Ingrese nombre de la tarea: ", function(respuesta){
-        verificar_nombre("insertar",respuesta, existe_tarea,connection,function(){
+        datos.nombre_actual = respuesta;
+        verificar_nombre("insertar",datos, existe_tarea,connection,function(){
             connection.end();
             rl.close();
         });
     });
 }
 
-function verificar_nombre(accion,nombre_tarea, existe_tarea,connection,cb){
+function preguntar_datos_renombrar(connection){
+    var existe_tarea = false;
+    var datos_renombrar={};
+    rl.question("Digite nombre de la tarea: ", function(respuesta){
+        datos_renombrar.nombre_actual = respuesta;
+        rl.question("Ingrese nuevo nombre de la tarea: ",function(respuesta){
+            datos_renombrar.nuevo_nombre =  respuesta;
+            verificar_nombre("renombrar",datos_renombrar,existe_tarea,connection,function(){
+                connection.end();
+                rl.close();
+            });
+        });
+    });
+}
+
+function verificar_nombre(accion,datos, existe_tarea,connection,cb){
     connection.query("SELECT * FROM to_do.tareas",function(error, respuesta){
         for(i in respuesta){
-            if (respuesta[i].nombre === nombre_tarea){
-                existe_tarea = true;
+            switch (accion){
+                case "insertar":
+                    if (respuesta[i].nombre === datos.nombre_actual){
+                        existe_tarea = true;
+                    }
+                break;
+                case "renombrar":
+                    if (respuesta[i].nombre === datos.nuevo_nombre){
+                        existe_tarea = true;
+                    }
                 break;
             }
         }
         if (existe_tarea === false){
             switch (accion){
                 case "insertar":
-                    insertar(nombre_tarea,connection,cb);
+                    insertar(datos,connection,cb);
+                break;
+                case "renombrar":
+                    renombrar(datos,connection,function(){
+                        connection.end();
+                        rl.close();
+                    });
                 break;
             }
         }
@@ -93,30 +124,16 @@ function verificar_nombre(accion,nombre_tarea, existe_tarea,connection,cb){
     });
 }
 
-function insertar(nombre_tarea,connection,cb){
-    connection.query(`INSERT INTO to_do.tareas (nombre,estado,creacion) VALUES ('${nombre_tarea}','pendiente',now())`,function(error,respuesta){
+function insertar(datos,connection,cb){
+    connection.query(`INSERT INTO to_do.tareas (nombre,estado,creacion) VALUES ('${datos.nombre_actual}','pendiente',now())`,function(error,respuesta){
         if (error) throw error;
     });
     cb();
     console.log("Datos ingresados ok");
 }
 
-function preguntar_datos_renombrar(connection){
-    var datos_renombrar={};
-    rl.question("Digite nombre de la tarea: ", function(respuesta){
-        datos_renombrar.nombre_actual = respuesta;
-        rl.question("Ingrese nuevo nombre de la tarea: ",function(respuesta){
-            datos_renombrar.nuevo_nombre =  respuesta;
-            renombrar(datos_renombrar,connection,function(){
-                connection.end();
-                rl.close();
-            });
-        });
-    });
-}
-
-function renombrar(datos_renombrar,connection,cb){
-    connection.query(`UPDATE to_do.tareas SET nombre = '${datos_renombrar.nuevo_nombre}' WHERE nombre = '${datos_renombrar.nombre_actual}'`,function(error,resultado){
+function renombrar(datos,connection,cb){
+    connection.query(`UPDATE to_do.tareas SET nombre = '${datos.nuevo_nombre}' WHERE nombre = '${datos.nombre_actual}'`,function(error,resultado){
         if(error) throw error;
     });
     cb();
