@@ -2,10 +2,10 @@ var mysql = require("mysql");
 const readline = require("readline");
 var rl = leer_datos_pantalla();
 
-rl.question("Que accion desea realizar? ",function(respuesta){
+rl.question("Que accion desea realizar? ",function(accion){
     var connection = crear_conexion_db();
     connection.connect();
-    switch(respuesta) {
+    switch(accion) {
         case "consultar":
             consultar(connection,function(){
                 connection.end();
@@ -13,19 +13,19 @@ rl.question("Que accion desea realizar? ",function(respuesta){
             }); 
         break;
         case "insertar":
-            preguntar_datos("insertar",connection,function(){
+            preguntar_datos(accion,connection,function(){
                 connection.end();
                 rl.close();
             });
         break;
         case "renombrar":
-            preguntar_datos("renombrar",connection,function(){
+            preguntar_datos(accion,connection,function(){
                 connection.end();
                 rl.close();
             });
         break;
         case "completar":
-            preguntar_datos("completar",connection,function(){
+            preguntar_datos(accion,connection,function(){
                 connection.end();
                 rl.close();
             });
