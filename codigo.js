@@ -13,10 +13,16 @@ rl.question("Que accion desea realizar? ",function(respuesta){
             }); 
         break;
         case "insertar":
-            preguntar_datos("insertar",connection);
+            preguntar_datos("insertar",connection,function(){
+                connection.end();
+                rl.close();
+            });
         break;
         case "renombrar":
-            preguntar_datos("renombrar",connection);
+            preguntar_datos("renombrar",connection,function(){
+                connection.end();
+                rl.close();
+            });
         break;
         case "completar":
             preguntar_datos_completar(connection);
@@ -61,32 +67,23 @@ function consultar(connection,cb){
     });
 }
 
-function preguntar_datos(accion,connection){
-    var existe_tarea = false;
-    var datos={};
-    rl.question("Ingrese nombre de la tarea: ", function(respuesta){
-        datos.nombre_actual = respuesta;
-        verificar_nombre(accion,datos, existe_tarea,connection,function(){
-            connection.end();
-            rl.close();
-        });
+function preguntar_datos(accion,connection,cb){
+    rl.question("Ingrese nombre de la tarea: ", function(nombre_tarea){
+        if (nombre_tarea === ""){
+            console.log("La tarea no debe estar en blanco");
+            cb();
+        }
+        else{
+            verificar_existe(accion,nombre_tarea,connection,cb);
+        }
     });
 }
 
-function verificar_nombre(accion,datos,existe_tarea,connection,cb){
-    if (datos.nombre_actual === ""){
-        console.log("La tarea no debe estar en blanco");
-        cb();
-    }
-    else{
-        verificar_nombre_existe(accion,datos,existe_tarea,connection,cb);
-    }
-}
-
-function verificar_nombre_existe(accion,datos,existe_tarea,connection,cb){
-    connection.query("SELECT * FROM to_do.tareas",function(error, respuesta){
-        for(i in respuesta){
-            if (respuesta[i].nombre === datos.nombre_actual){
+function verificar_existe(accion,nombre_tarea,connection,cb){
+    var existe_tarea = false;
+    connection.query("SELECT * FROM to_do.tareas",function(error, tareas){
+        for(i in tareas){
+            if (tareas[i].nombre === nombre_tarea){
                 existe_tarea = true;
                 break;
             }
@@ -94,7 +91,7 @@ function verificar_nombre_existe(accion,datos,existe_tarea,connection,cb){
         if (existe_tarea === false){
             switch (accion){
                 case "insertar":
-                    insertar(datos,connection,cb);
+                    insertar(nombre_tarea,connection,cb);
                 break;
                 case "renombrar":
                     console.log("La tarea no existe");
@@ -109,41 +106,36 @@ function verificar_nombre_existe(accion,datos,existe_tarea,connection,cb){
                     cb();
                 break;
                 case "renombrar":
-                    preguntar_datos_renombrar(datos,connection,cb);
+                    preguntar_datos_renombrar(nombre_tarea,connection,cb);
                 break;
             }
         }
     });
 }
 
-function preguntar_datos_renombrar(datos,connection,cb){
-    var existe_tarea = false;
-    rl.question("Ingrese nuevo nombre de la tarea: ",function(respuesta){
-        datos.nuevo_nombre =  respuesta;
-        verificar_nuevo_nombre(datos,existe_tarea,connection,cb);
+function preguntar_datos_renombrar(nombre_tarea,connection,cb){
+    rl.question("Ingrese nuevo nombre de la tarea: ",function(nuevo_nombre_tarea){
+        if (nuevo_nombre_tarea === ""){
+            console.log("La tarea no debe estar en blanco");
+            cb();
+        }
+        else{
+            verificar_nuevo_nombre_existe(nombre_tarea,nuevo_nombre_tarea,connection,cb);
+        }
     });
 }
 
-function verificar_nuevo_nombre(datos,existe_tarea,connection,cb){
-    if (datos.nuevo_nombre === ""){
-        console.log("La tarea no debe estar en blanco");
-        cb();
-    }
-    else{
-       verificar_nuevo_nombre_existe(datos,existe_tarea,connection,cb);
-    }
-}
-
-function verificar_nuevo_nombre_existe(datos,existe_tarea,connection,cb){
-    connection.query("SELECT * FROM to_do.tareas",function(error, respuesta){
-        for(i in respuesta){
-            if (respuesta[i].nombre === datos.nuevo_nombre){
+function verificar_nuevo_nombre_existe(nombre_tarea,nuevo_nombre_tarea,connection,cb){
+    var existe_tarea = false;
+    connection.query("SELECT * FROM to_do.tareas",function(error, tareas){
+        for(i in tareas){
+            if (tareas[i].nombre === nuevo_nombre_tarea){
                 existe_tarea = true;
                 break;
             }
         }
         if (existe_tarea === false){
-            renombrar(datos,connection,cb);
+            renombrar(nombre_tarea,nuevo_nombre_tarea,connection,cb);
         }
         else{
             console.log("La tarea ya existe");
@@ -152,16 +144,16 @@ function verificar_nuevo_nombre_existe(datos,existe_tarea,connection,cb){
     });
 }
 
-function insertar(datos,connection,cb){
-    connection.query(`INSERT INTO to_do.tareas (nombre,estado,creacion) VALUES ('${datos.nombre_actual}','pendiente',now())`,function(error,respuesta){
+function insertar(nombre_tarea,connection,cb){
+    connection.query(`INSERT INTO to_do.tareas (nombre,estado,creacion) VALUES ('${nombre_tarea}','pendiente',now())`,function(error,respuesta){
         if (error) throw error;
     });
     cb();
     console.log("Datos ingresados ok");
 }
 
-function renombrar(datos,connection,cb){
-    connection.query(`UPDATE to_do.tareas SET nombre = '${datos.nuevo_nombre}' WHERE nombre = '${datos.nombre_actual}'`,function(error,resultado){
+function renombrar(nombre_tarea,nuevo_nombre_tarea,connection,cb){
+    connection.query(`UPDATE to_do.tareas SET nombre = '${nuevo_nombre_tarea}' WHERE nombre = '${nombre_tarea}'`,function(error,resultado){
         if(error) throw error;
     });
     cb();
