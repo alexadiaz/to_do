@@ -30,6 +30,11 @@ rl.question("Que accion desea realizar? ",function(accion){
                 rl.close();
             });
         break;
+        case "ayuda":
+            mostrar_ayuda();
+            connection.end();
+            rl.close();
+        break;
         default:
             console.log("Dato no valido");
             connection.end();
@@ -182,4 +187,16 @@ function completar(nombre_tarea,connection,cb){
             });
         }
     });
+}
+
+function mostrar_ayuda(){
+    console.log("");
+    console.log(" Usted puede realizar las siguientes acciones: ");
+    console.log("-----------------------------------------------");
+    console.log("         Accion          |     Comando");
+    console.log("-----------------------------------------------");
+    console.log("    Insertar una tarea   |    insertar");
+    console.log("    Renombrar una tarea  |    renombrar");
+    console.log("    Completar una tarea  |    completar");
+    console.log("-----------------------------------------------");
 }
