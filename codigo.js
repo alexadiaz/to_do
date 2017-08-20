@@ -25,7 +25,10 @@ rl.question("Que accion desea realizar? ",function(respuesta){
             });
         break;
         case "completar":
-            preguntar_datos_completar(connection);
+            preguntar_datos("completar",connection,function(){
+                connection.end();
+                rl.close();
+            });
         break;
         default:
             console.log("Dato no valido");
@@ -94,6 +97,7 @@ function verificar_existe(accion,nombre_tarea,connection,cb){
                     insertar(nombre_tarea,connection,cb);
                 break;
                 case "renombrar":
+                case "completar":
                     console.log("La tarea no existe");
                     cb();
                 break;
@@ -107,6 +111,9 @@ function verificar_existe(accion,nombre_tarea,connection,cb){
                 break;
                 case "renombrar":
                     preguntar_datos_renombrar(nombre_tarea,connection,cb);
+                break;
+                case "completar":
+                    completar(nombre_tarea,connection,cb);
                 break;
             }
         }
@@ -160,25 +167,16 @@ function renombrar(nombre_tarea,nuevo_nombre_tarea,connection,cb){
     console.log("Datos renombrados ok");
 }
 
-function preguntar_datos_completar(connection){
-    rl.question("Digite nombre de tarea: ",function(resultado){
-        completar(resultado,connection,function(){
-            connection.end();
-            rl.close();
-        });
-    });
-}
-
 function completar(nombre_tarea,connection,cb){
-    connection.query(`SELECT tareas.estado FROM to_do.tareas where nombre = '${nombre_tarea}'`,function(error, resultado){
+    connection.query(`SELECT tareas.estado FROM to_do.tareas where nombre = '${nombre_tarea}'`,function(error, tareas){
         if (error) throw error;
-        if (resultado[0].estado === "terminado"){
+        if (tareas[0].estado === "terminado"){
             cb();
             console.log("La tarea ya estaba terminada");
         }
         else{
             connection.query(`UPDATE to_do.tareas SET estado = 'terminado', finalizacion = now() WHERE nombre = '${nombre_tarea}'`, function(error2,respuesta){
-               if (error2) throw error2;
+                if (error2) throw error2;
                 cb();
                 console.log("Tarea terminada ok");
             });
