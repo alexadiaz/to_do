@@ -63,14 +63,13 @@ function leer_datos_pantalla(){
 function consultar(connection,cb){
     connection.query("SELECT * FROM to_do.tareas",function(error,respuesta){
         if (error) throw error;
+        console.log("------------------------------------------------------------------------------------------------");
+        console.log("   Id   |    Nombre    |      Estado     |      Fecha creacion      |    Fecha finalizacion    |");
+        console.log("-----------------------------------------------------------------------------------------------");
         for (var i in respuesta){
-            console.log("id: " + respuesta[i].idtareas);
-            console.log("Nombre: " + respuesta[i].nombre);
-            console.log("Estado: " + respuesta[i].estado);
-            console.log("Fecha de creacion: " + respuesta[i].creacion);
-            console.log("Fecha de finalizacion: " + respuesta[i].finalizacion);
-            console.log("");
+            console.log("   " + respuesta[i].idtareas + "        ",respuesta[i].nombre + "        ",respuesta[i].estado + "        ",respuesta[i].creacion + "        ",respuesta[i].finalizacion);
         }
+        console.log("-----------------------------------------------------------------------------------------------");
         cb();
     });
 }
