@@ -37,7 +37,7 @@ rl.question("Que accion desea realizar? (Digite ayuda para conocer las acciones)
             }); 
         break;
         case "consultar tarea":
-            consultar_tarea(connection,function(){
+            preguntar_datos_consultar(connection,function(){
                 connection.end();
                 rl.close();
             });
@@ -157,6 +157,18 @@ function verificar_nuevo_nombre_existe(nombre_tarea,nuevo_nombre_tarea,connectio
     });
 }
 
+function preguntar_datos_consultar(connection,cb){
+    rl.question("Ingrese nombre de la tarea o letras contenidas en ella: ",function(palabra){
+         if (palabra === ""){
+            console.log("La informacion no debe estar en blanco");
+            cb();
+        }
+        else{
+           consultar_tarea(palabra,connection,cb);
+        }
+    });
+}
+
 function insertar(nombre_tarea,connection,cb){
     connection.query(`INSERT INTO to_do.tareas (nombre,estado,creacion) VALUES ('${nombre_tarea}','pendiente',now())`,function(error,respuesta){
         if (error) throw error;
@@ -212,20 +224,21 @@ function consultar(connection,cb){
     });
 }
 
-function consultar_tarea(connection,cb){
-    rl.question("Ingrese nombre de la tarea o palabras contenidas en ella: ",function(palabra){
-         if (palabra === ""){
-            console.log("La informacion no debe estar en blanco");
+function consultar_tarea(palabra,connection,cb){
+    connection.query(`SELECT * FROM to_do.tareas WHERE tareas.nombre like '%${palabra}%'`,function(error,tareas){
+        if (error) throw error;
+        if(tareas.length === 0){
+            console.log("No se encontraron coincidencias");
             cb();
         }
         else{
-            connection.query(`SELECT * FROM to_do.tareas WHERE tareas.nombre = '${palabra}'`,function(error,tarea){
-                console.log("------------------------------------------------------------------------------------------------");
-                console.log("   Id   |    Nombre    |      Estado     |      Fecha creacion      |    Fecha finalizacion    |");
-                console.log("------------------------------------------------------------------------------------------------");     
-                console.log("   " + tarea[0].idtareas + "        ",tarea[0].nombre + "        ",tarea[0].estado + "        ",tarea[0].creacion + "        ",tarea[0].finalizacion);
-                console.log("------------------------------------------------------------------------------------------------");
-            });
+            console.log("------------------------------------------------------------------------------------------------");
+            console.log("   Id   |    Nombre    |      Estado     |      Fecha creacion      |    Fecha finalizacion    |");
+            console.log("------------------------------------------------------------------------------------------------"); 
+            for(var i in tareas){   
+                console.log("   " + tareas[i].idtareas + "        ",tareas[i].nombre + "        ",tareas[i].estado + "        ",tareas[i].creacion + "        ",tareas[i].finalizacion);
+            }
+            console.log("------------------------------------------------------------------------------------------------");
             cb();
         }
     });
