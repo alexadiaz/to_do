@@ -208,13 +208,15 @@ function borrar(nombre_tarea,connection,cb){
 
 function mostrar_ayuda(){
     console.log("");
-    console.log(" Usted puede realizar las siguientes acciones: ");
-    console.log("-----------------------------------------------");
-    console.log("         Accion          |     Comando");
-    console.log("-----------------------------------------------");
-    console.log("    Insertar una tarea   |    insertar");
-    console.log("    Renombrar una tarea  |    renombrar");
-    console.log("    Completar una tarea  |    completar");
-    console.log("    Borrar una tarea     |    borrar");
-    console.log("-----------------------------------------------");
+    console.log(" Usted puede realizar las siguientes acciones:   ");
+    console.log("----------------------------------------------------------------");
+    console.log("            Accion               |     Comando");
+    console.log("----------------------------------------------------------------");
+    console.log("    Insertar una tarea           |    insertar");
+    console.log("    Renombrar una tarea          |    renombrar");
+    console.log("    Completar una tarea          |    completar");
+    console.log("    Borrar una tarea             |    borrar");
+    console.log("    Consultar todas las tareas   |    consultar");
+    console.log("    Consultar por tarea          |    consultar tarea");
+    console.log("----------------------------------------------------------------");
 }
