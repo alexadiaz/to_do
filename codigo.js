@@ -6,12 +6,6 @@ rl.question("Que accion desea realizar? (Digite ayuda para conocer las acciones)
     var connection = crear_conexion_db();
     connection.connect();
     switch(accion) {
-        case "consultar":
-            consultar(connection,function(){
-                connection.end();
-                rl.close();
-            }); 
-        break;
         case "insertar":
             preguntar_datos(accion,connection,function(){
                 connection.end();
@@ -35,6 +29,18 @@ rl.question("Que accion desea realizar? (Digite ayuda para conocer las acciones)
                 connection.end();
                 rl.close();
             })
+        break;
+        case "consultar":
+            consultar(connection,function(){
+                connection.end();
+                rl.close();
+            }); 
+        break;
+        case "consultar tarea":
+            consultar_tarea(connection,function(){
+                connection.end();
+                rl.close();
+            });
         break;
         case "ayuda":
             mostrar_ayuda();
@@ -64,20 +70,6 @@ function leer_datos_pantalla(){
         output:process.stdout
     });
     return rl;
-}
-
-function consultar(connection,cb){
-    connection.query("SELECT * FROM to_do.tareas",function(error,respuesta){
-        if (error) throw error;
-        console.log("------------------------------------------------------------------------------------------------");
-        console.log("   Id   |    Nombre    |      Estado     |      Fecha creacion      |    Fecha finalizacion    |");
-        console.log("-----------------------------------------------------------------------------------------------");
-        for (var i in respuesta){
-            console.log("   " + respuesta[i].idtareas + "        ",respuesta[i].nombre + "        ",respuesta[i].estado + "        ",respuesta[i].creacion + "        ",respuesta[i].finalizacion);
-        }
-        console.log("-----------------------------------------------------------------------------------------------");
-        cb();
-    });
 }
 
 function preguntar_datos(accion,connection,cb){
@@ -174,7 +166,7 @@ function insertar(nombre_tarea,connection,cb){
 }
 
 function renombrar(nombre_tarea,nuevo_nombre_tarea,connection,cb){
-    connection.query(`UPDATE to_do.tareas SET nombre = '${nuevo_nombre_tarea}' WHERE nombre = '${nombre_tarea}'`,function(error,resultado){
+    connection.query(`UPDATE to_do.tareas SET nombre = '${nuevo_nombre_tarea}' WHERE nombre = '${nombre_tarea}'`,function(error,respuesta){
         if(error) throw error;
     });
     cb();
@@ -182,9 +174,9 @@ function renombrar(nombre_tarea,nuevo_nombre_tarea,connection,cb){
 }
 
 function completar(nombre_tarea,connection,cb){
-    connection.query(`SELECT tareas.estado FROM to_do.tareas where nombre = '${nombre_tarea}'`,function(error, tareas){
+    connection.query(`SELECT tareas.estado FROM to_do.tareas where nombre = '${nombre_tarea}'`,function(error, tarea){
         if (error) throw error;
-        if (tareas[0].estado === "terminado"){
+        if (tarea[0].estado === "terminado"){
             cb();
             console.log("La tarea ya estaba terminada");
         }
@@ -199,11 +191,44 @@ function completar(nombre_tarea,connection,cb){
 }
 
 function borrar(nombre_tarea,connection,cb){
-    connection.query(`DELETE FROM to_do.tareas WHERE nombre = '${nombre_tarea}'`,function(error,tareas){
+    connection.query(`DELETE FROM to_do.tareas WHERE nombre = '${nombre_tarea}'`,function(error,respuesta){
         if (error) throw error;
     });
     cb();
     console.log("Tarea borrada ok");
+}
+
+function consultar(connection,cb){
+    connection.query("SELECT * FROM to_do.tareas",function(error,tareas){
+        if (error) throw error;
+        console.log("------------------------------------------------------------------------------------------------");
+        console.log("   Id   |    Nombre    |      Estado     |      Fecha creacion      |    Fecha finalizacion    |");
+        console.log("------------------------------------------------------------------------------------------------");
+        for (var i in tareas){
+            console.log("   " + tareas[i].idtareas + "        ",tareas[i].nombre + "        ",tareas[i].estado + "        ",tareas[i].creacion + "        ",tareas[i].finalizacion);
+        }
+        console.log("------------------------------------------------------------------------------------------------");
+        cb();
+    });
+}
+
+function consultar_tarea(connection,cb){
+    rl.question("Ingrese nombre de la tarea o palabras contenidas en ella: ",function(palabra){
+         if (palabra === ""){
+            console.log("La informacion no debe estar en blanco");
+            cb();
+        }
+        else{
+            connection.query(`SELECT * FROM to_do.tareas WHERE tareas.nombre = '${palabra}'`,function(error,tarea){
+                console.log("------------------------------------------------------------------------------------------------");
+                console.log("   Id   |    Nombre    |      Estado     |      Fecha creacion      |    Fecha finalizacion    |");
+                console.log("------------------------------------------------------------------------------------------------");     
+                console.log("   " + tarea[0].idtareas + "        ",tarea[0].nombre + "        ",tarea[0].estado + "        ",tarea[0].creacion + "        ",tarea[0].finalizacion);
+                console.log("------------------------------------------------------------------------------------------------");
+            });
+            cb();
+        }
+    });
 }
 
 function mostrar_ayuda(){
