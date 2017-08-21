@@ -2,7 +2,7 @@ var mysql = require("mysql");
 const readline = require("readline");
 var rl = leer_datos_pantalla();
 
-rl.question("Que accion desea realizar? ",function(accion){
+rl.question("Que accion desea realizar? (Digite ayuda para conocer las acciones): ",function(accion){
     var connection = crear_conexion_db();
     connection.connect();
     switch(accion) {
@@ -30,13 +30,19 @@ rl.question("Que accion desea realizar? ",function(accion){
                 rl.close();
             });
         break;
+        case "borrar":
+            preguntar_datos(accion,connection,function(){
+                connection.end();
+                rl.close();
+            })
+        break;
         case "ayuda":
             mostrar_ayuda();
             connection.end();
             rl.close();
         break;
         default:
-            console.log("Dato no valido");
+            console.log("La accion no es valida");
             connection.end();
             rl.close();
     }
@@ -102,6 +108,7 @@ function verificar_existe(accion,nombre_tarea,connection,cb){
                 break;
                 case "renombrar":
                 case "completar":
+                case "borrar":
                     console.log("La tarea no existe");
                     cb();
                 break;
@@ -118,6 +125,9 @@ function verificar_existe(accion,nombre_tarea,connection,cb){
                 break;
                 case "completar":
                     completar(nombre_tarea,connection,cb);
+                break;
+                case "borrar":
+                    borrar(nombre_tarea,connection,cb);
                 break;
             }
         }
@@ -160,7 +170,7 @@ function insertar(nombre_tarea,connection,cb){
         if (error) throw error;
     });
     cb();
-    console.log("Datos ingresados ok");
+    console.log("Tarea ingresada ok");
 }
 
 function renombrar(nombre_tarea,nuevo_nombre_tarea,connection,cb){
@@ -168,7 +178,7 @@ function renombrar(nombre_tarea,nuevo_nombre_tarea,connection,cb){
         if(error) throw error;
     });
     cb();
-    console.log("Datos renombrados ok");
+    console.log("Tarea renombrada ok");
 }
 
 function completar(nombre_tarea,connection,cb){
@@ -182,10 +192,18 @@ function completar(nombre_tarea,connection,cb){
             connection.query(`UPDATE to_do.tareas SET estado = 'terminado', finalizacion = now() WHERE nombre = '${nombre_tarea}'`, function(error2,respuesta){
                 if (error2) throw error2;
                 cb();
-                console.log("Tarea terminada ok");
+                console.log("Tarea completada ok");
             });
         }
     });
+}
+
+function borrar(nombre_tarea,connection,cb){
+    connection.query(`DELETE FROM to_do.tareas WHERE nombre = '${nombre_tarea}'`,function(error,tareas){
+        if (error) throw error;
+    });
+    cb();
+    console.log("Tarea borrada ok");
 }
 
 function mostrar_ayuda(){
@@ -197,5 +215,6 @@ function mostrar_ayuda(){
     console.log("    Insertar una tarea   |    insertar");
     console.log("    Renombrar una tarea  |    renombrar");
     console.log("    Completar una tarea  |    completar");
+    console.log("    Borrar una tarea     |    borrar");
     console.log("-----------------------------------------------");
 }
