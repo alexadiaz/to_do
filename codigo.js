@@ -2,7 +2,17 @@ var mysql = require("mysql");
 const readline = require("readline");
 var rl = leer_datos_pantalla();
 
-rl.question("Que accion desea realizar? (Digite ayuda para conocer las acciones): ",function(accion){
+if(process.argv.length > 2){
+    var accion = process.argv[2];
+    iniciar(accion);
+}
+else{
+    rl.question("Que accion desea realizar? (Digite ayuda para conocer las acciones): ",function(accion){
+        iniciar(accion);
+    });
+}
+
+function iniciar(accion){
     var connection = crear_conexion_db();
     connection.connect();
     switch(accion) {
@@ -36,7 +46,7 @@ rl.question("Que accion desea realizar? (Digite ayuda para conocer las acciones)
                 rl.close();
             }); 
         break;
-        case "consultar tarea":
+        case "consultar_tarea":
             preguntar_datos_consultar(connection,function(){
                 connection.end();
                 rl.close();
@@ -52,7 +62,7 @@ rl.question("Que accion desea realizar? (Digite ayuda para conocer las acciones)
             connection.end();
             rl.close();
     }
-});
+}
 
 function crear_conexion_db(){
     var connection = mysql.createConnection({
@@ -231,18 +241,18 @@ function consultar_tarea(palabra,connection,cb){
 }
 
 function mostrar_pantalla(tareas,cb){
-    console.log("------------------------------------------------------------------------------------------------");
-    console.log("   Id   |    Nombre    |      Estado     |      Fecha creacion      |    Fecha finalizacion    |");
-    console.log("------------------------------------------------------------------------------------------------");
+    console.log("--------------------------------------------------------------------------------------------------------");
+    console.log("   Id   |    Nombre    |      Estado     |        Fecha creacion        |      Fecha finalizacion      |");
+    console.log("--------------------------------------------------------------------------------------------------------");
     for (var i in tareas){
         if(tareas[i].finalizacion !== null){
-            console.log("   " + tareas[i].idtareas + "        ",tareas[i].nombre + "        ",tareas[i].estado + "        ",tareas[i].creacion.toLocaleString() + "        ",tareas[i].finalizacion.toLocaleString());
+            console.log("   " + tareas[i].idtareas + "      ",tareas[i].nombre + "        ",tareas[i].estado + "        ",tareas[i].creacion.toLocaleString() + "        ",tareas[i].finalizacion.toLocaleString());
         }
         else{
-            console.log("   " + tareas[i].idtareas + "        ",tareas[i].nombre + "        ",tareas[i].estado + "        ",tareas[i].creacion.toLocaleString() + "        ");
+            console.log("   " + tareas[i].idtareas + "      ",tareas[i].nombre + "        ",tareas[i].estado + "        ",tareas[i].creacion.toLocaleString() + "        ");
         }
     }
-    console.log("------------------------------------------------------------------------------------------------");
+    console.log("--------------------------------------------------------------------------------------------------------");
     cb(); 
 }
 
@@ -257,6 +267,6 @@ function mostrar_ayuda(){
     console.log("    Completar una tarea          |    completar");
     console.log("    Borrar una tarea             |    borrar");
     console.log("    Consultar todas las tareas   |    consultar");
-    console.log("    Consultar por tarea          |    consultar tarea");
+    console.log("    Consultar por tarea          |    consultar_tarea");
     console.log("----------------------------------------------------------------");
 }
