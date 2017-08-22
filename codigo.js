@@ -170,7 +170,7 @@ function preguntar_datos_consultar(connection,cb){
 }
 
 function insertar(nombre_tarea,connection,cb){
-    connection.query(`INSERT INTO to_do.tareas (nombre,estado,creacion) VALUES ('${nombre_tarea}','pendiente',now())`,function(error,respuesta){
+    connection.query(`INSERT INTO to_do.tareas (nombre,estado,creacion) VALUES ('${nombre_tarea}','pendiente',UTC_TIMESTAMP())`,function(error,respuesta){
         if (error) throw error;
     });
     cb();
@@ -193,7 +193,7 @@ function completar(nombre_tarea,connection,cb){
             console.log("La tarea ya estaba terminada");
         }
         else{
-            connection.query(`UPDATE to_do.tareas SET estado = 'terminado', finalizacion = now() WHERE nombre = '${nombre_tarea}'`, function(error2,respuesta){
+            connection.query(`UPDATE to_do.tareas SET estado = 'terminado', finalizacion = UTC_TIMESTAMP() WHERE nombre = '${nombre_tarea}'`, function(error2,respuesta){
                 if (error2) throw error2;
                 cb();
                 console.log("Tarea completada ok");
