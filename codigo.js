@@ -170,7 +170,7 @@ function preguntar_datos_consultar(connection,cb){
 }
 
 function insertar(nombre_tarea,connection,cb){
-    connection.query(`INSERT INTO to_do.tareas (nombre,estado,creacion) VALUES ('${nombre_tarea}','pendiente',UTC_TIMESTAMP())`,function(error,respuesta){
+    connection.query(`INSERT INTO to_do.tareas (nombre,estado,creacion) VALUES ('${nombre_tarea}','pendiente',now())`,function(error,respuesta){
         if (error) throw error;
     });
     cb();
@@ -193,7 +193,7 @@ function completar(nombre_tarea,connection,cb){
             console.log("La tarea ya estaba terminada");
         }
         else{
-            connection.query(`UPDATE to_do.tareas SET estado = 'terminado', finalizacion = UTC_TIMESTAMP() WHERE nombre = '${nombre_tarea}'`, function(error2,respuesta){
+            connection.query(`UPDATE to_do.tareas SET estado = 'terminado', finalizacion = now() WHERE nombre = '${nombre_tarea}'`, function(error2,respuesta){
                 if (error2) throw error2;
                 cb();
                 console.log("Tarea completada ok");
@@ -213,14 +213,7 @@ function borrar(nombre_tarea,connection,cb){
 function consultar(connection,cb){
     connection.query("SELECT * FROM to_do.tareas",function(error,tareas){
         if (error) throw error;
-        console.log("------------------------------------------------------------------------------------------------");
-        console.log("   Id   |    Nombre    |      Estado     |      Fecha creacion      |    Fecha finalizacion    |");
-        console.log("------------------------------------------------------------------------------------------------");
-        for (var i in tareas){
-            console.log("   " + tareas[i].idtareas + "        ",tareas[i].nombre + "        ",tareas[i].estado + "        ",tareas[i].creacion + "        ",tareas[i].finalizacion);
-        }
-        console.log("------------------------------------------------------------------------------------------------");
-        cb();
+        mostrar_pantalla(tareas,cb);
     });
 }
 
@@ -232,16 +225,25 @@ function consultar_tarea(palabra,connection,cb){
             cb();
         }
         else{
-            console.log("------------------------------------------------------------------------------------------------");
-            console.log("   Id   |    Nombre    |      Estado     |      Fecha creacion      |    Fecha finalizacion    |");
-            console.log("------------------------------------------------------------------------------------------------"); 
-            for(var i in tareas){   
-                console.log("   " + tareas[i].idtareas + "        ",tareas[i].nombre + "        ",tareas[i].estado + "        ",tareas[i].creacion + "        ",tareas[i].finalizacion);
-            }
-            console.log("------------------------------------------------------------------------------------------------");
-            cb();
+            mostrar_pantalla(tareas,cb);
         }
     });
+}
+
+function mostrar_pantalla(tareas,cb){
+    console.log("------------------------------------------------------------------------------------------------");
+    console.log("   Id   |    Nombre    |      Estado     |      Fecha creacion      |    Fecha finalizacion    |");
+    console.log("------------------------------------------------------------------------------------------------");
+    for (var i in tareas){
+        if(tareas[i].finalizacion !== null){
+            console.log("   " + tareas[i].idtareas + "        ",tareas[i].nombre + "        ",tareas[i].estado + "        ",tareas[i].creacion.toLocaleString() + "        ",tareas[i].finalizacion.toLocaleString());
+        }
+        else{
+            console.log("   " + tareas[i].idtareas + "        ",tareas[i].nombre + "        ",tareas[i].estado + "        ",tareas[i].creacion.toLocaleString() + "        ");
+        }
+    }
+    console.log("------------------------------------------------------------------------------------------------");
+    cb(); 
 }
 
 function mostrar_ayuda(){
