@@ -81,8 +81,8 @@ function preguntar_datos(accion,connection,cb){
 
 function verificar_existe(accion,nombre_tarea,connection,cb){
     var existe_tarea = false;
-    connection.query("SELECT * FROM to_do.tareas",function(error, tareas){
-        for(i in tareas){
+    connection.query("SELECT idtareas,nombre,estado,creacion,finalizacion FROM to_do.tareas",function(error, tareas){
+        for(var i in tareas){
             if (tareas[i].nombre === nombre_tarea){
                 existe_tarea = true;
                 break;
@@ -135,8 +135,8 @@ function preguntar_datos_renombrar(nombre_tarea,connection,cb){
 
 function verificar_nuevo_nombre_existe(nombre_tarea,nuevo_nombre_tarea,connection,cb){
     var existe_tarea = false;
-    connection.query("SELECT * FROM to_do.tareas",function(error, tareas){
-        for(i in tareas){
+    connection.query("SELECT idtareas,nombre,estado,creacion,finalizacion FROM to_do.tareas",function(error, tareas){
+        for(var i in tareas){
             if (tareas[i].nombre === nuevo_nombre_tarea){
                 existe_tarea = true;
                 break;
@@ -206,14 +206,14 @@ function borrar(nombre_tarea,connection,cb){
 }
 
 function consultar(connection,cb){
-    connection.query("SELECT * FROM to_do.tareas",function(error,tareas){
+    connection.query("SELECT idtareas,nombre,estado,creacion,finalizacion FROM to_do.tareas",function(error,tareas){
         if (error) throw error;
         mostrar_pantalla(tareas,cb);
     });
 }
 
 function consultar_tarea(palabra,connection,cb){
-    connection.query(`SELECT * FROM to_do.tareas WHERE tareas.nombre like '%${palabra}%'`,function(error,tareas){
+    connection.query(`SELECT idtareas,nombre,estado,creacion,finalizacion FROM to_do.tareas WHERE tareas.nombre like '%${palabra}%'`,function(error,tareas){
         if (error) throw error;
         if(tareas.length === 0){
             console.log("No se encontraron coincidencias");
