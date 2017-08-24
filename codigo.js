@@ -17,28 +17,13 @@ function iniciar(accion){
     connection.connect();
     switch(accion) {
         case "insertar":
-            preguntar_datos(accion,connection,function(){
-                connection.end();
-                rl.close();
-            });
-        break;
         case "renombrar":
-            preguntar_datos(accion,connection,function(){
-                connection.end();
-                rl.close();
-            });
-        break;
         case "completar":
-            preguntar_datos(accion,connection,function(){
-                connection.end();
-                rl.close();
-            });
-        break;
         case "borrar":
             preguntar_datos(accion,connection,function(){
                 connection.end();
                 rl.close();
-            })
+            });
         break;
         case "consultar":
             consultar(connection,function(){
